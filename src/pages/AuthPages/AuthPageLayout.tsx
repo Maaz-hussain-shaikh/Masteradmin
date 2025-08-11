@@ -25,12 +25,7 @@ export default function AuthLayout({
                   alt="Logo"
                 />
               </Link>
-              <p className="text-center text-gray-400 dark:text-white/60">
-              
-                 
-                Your dashboard to manage trips, track bookings, and create unforgettable travel experiences starts here.
-
-              </p>
+             
             </div>
           </div>
         </div>

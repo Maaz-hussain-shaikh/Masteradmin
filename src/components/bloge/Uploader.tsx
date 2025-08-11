@@ -1,33 +1,77 @@
 import ComponentCard from "../common/ComponentCard";
 import { useDropzone } from "react-dropzone";
 import Label from "../form/Label";
+import axios from "axios"
 import { useBlog } from "./BlogContext";
 import FileInput from "../form/input/FileInput";
-import Input from "../form/input/InputField";
+import MultiSelect from "../form/MultiSelect";
 // import Dropzone from "react-dropzone";
 
 const Uploader: React.FC = () => {
- const { blogdata, setData } = useBlog();
+  const { blogdata, setData, setErrors,setMessage } = useBlog();
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const onDrop = (acceptedFiles: File[]) => {
-    console.log("Files dropped:", acceptedFiles);
-    // Handle file uploads here
-  };
-   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      console.log("Selected file:", file.name);
+  const uploadImageAndGetUrl = async (imageFile: File, folder: string, name: string) => {
+    if (!imageFile) {
+      alert('File not found!');
+      return null;
     }
+
+    const formData = new FormData();
+    formData.append("folder", folder);
+    formData.append("image", imageFile);
+    const Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJNYXN0ZXJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDkxMTY5NiwiZXhwIjoxNzU0OTk4MDk2fQ.jTiicg6kFJGSF5H_ZtcqtFJI5a7ydgkLXfiG1iRVouM"
+
+    try {
+
+      const response = await axios.post(
+        "https://traveltechbackend.vercel.app/traveltech/api/addimgs",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${Token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        console.log(response.data.imageUrl)
+        setData((prev) => ({
+          ...prev,
+          [name]: response.data.imageUrl,
+        }));
+
+
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      return null;
+
+    }
+  };
+  
+  const onDrop = (acceptedFiles: File[]) => {
+    if (blogdata.destinationName == "") {
+      setMessage("Please fill blog destination name");
+    setTimeout(() => setMessage(""), 2000);
+    } else {
+      // Handle file uploads here
+      uploadImageAndGetUrl(acceptedFiles[0], blogdata.destinationName, "banner")
+    }
+
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (blogdata.name == "") {
+      setMessage("Please fill your name");
+    setTimeout(() => setMessage(""), 2000);
+    } else {
+      const file = event.target.files?.[0];
+      if (file) {
+        uploadImageAndGetUrl(file, blogdata.name, "userprofile")
+      }
+    }
+
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -39,17 +83,42 @@ const Uploader: React.FC = () => {
       "image/svg+xml": [],
     },
   });
+
+
+  const validate = () => {
+    const requiredFields = ["name", "title", "type", "destinationName", "state", "country", "time", "banner"];
+    let newErrors: Record<string, boolean> = {};
+
+    requiredFields.forEach((field) => {
+      if (!blogdata[field as keyof typeof blogdata]) {
+        newErrors[field] = true;
+      }
+    });
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+  if (validate()) {
+    setMessage("success");
+    setTimeout(() => setMessage("Datafill"), 2000);
+  } else {
+    setMessage("Please fill all required fields");
+    setTimeout(() => setMessage(""), 2000); // 2 sec बाद हट जाएगा
+  }
+};
   return (
     <ComponentCard title="Upload Banner">
       <div className="transition border border-gray-300 border-dashed cursor-pointer dark:hover:border-orange-600 dark:border-gray-700 rounded-xl hover:border-orange-600">
-        <form
+        {blogdata.banner == "" ? <form
           {...getRootProps()}
           className={`dropzone rounded-xl   border-dashed border-gray-300 p-7 lg:p-10
-        ${
-          isDragActive
-            ? "border-orange-600 bg-gray-100 dark:bg-gray-800"
-            : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
-        }
+        ${isDragActive
+              ? "border-orange-600 bg-gray-100 dark:bg-gray-800"
+              : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
+            }
       `}
           id="demo-upload"
         >
@@ -89,28 +158,45 @@ const Uploader: React.FC = () => {
               Browse File
             </span>
           </div>
-        </form>
-        
+        </form> : <>
+          <img
+            src={blogdata.banner}
+            alt="Cover"
+            className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          />
+        </>}
+
+
       </div>
       <div>
-          <Label>Youtube Blog link if any</Label>
-          <Input
-              type="text"
-              name="youtubelink"
-              value={blogdata.youtubelink}
-              placeholder="https:// YouTube-Link.com "
-              onChange={handleChange}
-            />
-        </div>
-        <div>
-        <Label>Writer Photo</Label>
-        <FileInput onChange={handleFileChange} className="custom-class" />
+        <Label>Youtube Blog link if any</Label>
+        <MultiSelect
+          value={blogdata.youtubelink}
+          onChange={(tags) =>
+            setData((prev) => ({
+              ...prev,
+              youtubelink: tags, // Directly blogdata.seotag में update
+            }))
+          }
+        />
       </div>
-         <button className="bg-orange-600 text-white ring-1 ring-inset ring-gray-300  dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300 inline-flex items-center justify-center gap-2 rounded-lg transition w-50 h-10">
+      <div>
+        <Label>Writer Photo</Label>
+        {blogdata.userprofile == "" ? <><FileInput onChange={handleFileChange} className="custom-class" /></> :
+          <>
+            <img
+              src={blogdata.userprofile}
+              alt="Cover"
+              className="w-30 border h-30 border-gray-200 rounded-xl dark:border-gray-800"
+            />
+          </>}
+
+      </div>
+      <button className="bg-orange-600 text-white ring-1 ring-inset ring-gray-300  dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300 inline-flex items-center justify-center gap-2 rounded-lg transition w-50 h-10" onClick={() => { handleNext() }}>
         Next
-    </button>
+      </button>
     </ComponentCard>
- 
+
   );
 };
 

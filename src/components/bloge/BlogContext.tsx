@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+// BlogContext.tsx
+import React, { createContext, useContext, useState } from "react";
 
 type BlogData = {
   name: string;
@@ -11,18 +12,25 @@ type BlogData = {
   region: string;
   seotag: string[];
   banner: string;
-  youtubelink: string;
+  youtubelink: string[];
   userprofile: string;
 };
+
+type ErrorState = Record<string, boolean>;
 
 type BlogContextType = {
   blogdata: BlogData;
   setData: React.Dispatch<React.SetStateAction<BlogData>>;
+  errors: ErrorState;
+  setErrors: React.Dispatch<React.SetStateAction<ErrorState>>;
+  message: string;
+  setMessage: React.Dispatch<React.SetStateAction<string>>;
+
 };
 
 const BlogContext = createContext<BlogContextType | undefined>(undefined);
 
-export const BlogProvider = ({ children }: { children: ReactNode }) => {
+export const BlogProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [blogdata, setData] = useState<BlogData>({
     name: "",
     title: "",
@@ -34,12 +42,14 @@ export const BlogProvider = ({ children }: { children: ReactNode }) => {
     region: "India",
     seotag: [],
     banner: "",
-    youtubelink: "",
+    youtubelink: [],
     userprofile: "",
   });
 
+  const [errors, setErrors] = useState<ErrorState>({});
+const [message, setMessage] = useState("");
   return (
-    <BlogContext.Provider value={{ blogdata, setData }}>
+    <BlogContext.Provider value={{ blogdata, setData, errors, setErrors,message, setMessage }}>
       {children}
     </BlogContext.Provider>
   );
@@ -48,7 +58,7 @@ export const BlogProvider = ({ children }: { children: ReactNode }) => {
 export const useBlog = () => {
   const context = useContext(BlogContext);
   if (!context) {
-    throw new Error("useBlog must be used within a BlogProvider");
+    throw new Error("useBlog must be used within BlogProvider");
   }
   return context;
 };

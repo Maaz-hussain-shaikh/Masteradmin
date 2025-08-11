@@ -9,7 +9,7 @@ import Radio from "../form/input/Radio";
 import { useBlog } from "./BlogContext";
 
 export default function Createblog() {
- const { blogdata, setData } = useBlog();
+ const { blogdata, setData ,errors } = useBlog();
   
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -46,9 +46,11 @@ export default function Createblog() {
               placeholder="Full Name"
               type="text"
               name="name"
+              error={errors.name}
               value={blogdata.name}
               onChange={handleChange}
               className="pl-[62px]"
+              
             />
             <span className="absolute left-0 top-1/2 -translate-y-1/2 border-r border-gray-200 px-3.5 py-3 text-gray-500 dark:border-gray-800 dark:text-gray-400">
               <UserCircleIcon className="size-6" />
@@ -60,6 +62,7 @@ export default function Createblog() {
           <Label>Tital of Blog</Label>
           <TextArea
             value={blogdata.title}
+           hint={`${errors.title?"Please write your blog heading":""}`}
             onChange={(val) => setData(prev => ({ ...prev, title: val }))}
             rows={3}
           />
@@ -80,6 +83,7 @@ export default function Createblog() {
             <Input
               type="text"
               name="destinationName"
+              error={errors.destinationName}
               value={blogdata.destinationName}
               placeholder="Destination"
               onChange={handleChange}
@@ -87,6 +91,7 @@ export default function Createblog() {
             <Input
               name="state"
               type="text"
+              error={errors.state}
               value={blogdata.state}
               placeholder="State"
               onChange={handleChange}
@@ -102,12 +107,14 @@ export default function Createblog() {
               options={options}
               placeholder="Country"
               value={blogdata.country}
+              
               onChange={(val) => setData((prev) => ({ ...prev, country: val }))}
               className="dark:bg-dark-900"
             />
             <Input
               type="Text"
               name="time"
+              error={errors.time}
               value={blogdata.time}
               onChange={handleChange}
               placeholder="5 min"
