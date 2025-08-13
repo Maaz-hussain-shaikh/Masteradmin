@@ -1,14 +1,69 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
+import axios from "axios";
+import { useNavigate } from "react-router";
+interface LoginUser {
+  id: number;
+  username: string;
+  role: string;
+  token: string;
+}
 
+interface LoginResponse {
+  status: boolean;
+  mass: string;
+  data: LoginUser[];
+}
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [user,setuser]=useState({
+    username:"",
+    password:""
+  });
+  const goto=useNavigate()
   const [isChecked, setIsChecked] = useState(false);
+ useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      goto("/", { replace: true }); // already logged in → dashboard
+    }
+  }, []);
+   const loginUser = async (username: string, password: string) => {
+  try {
+    const response = await axios.post<LoginResponse>(
+      "https://aaliyaenterprises.com/TravelTech/LoginPannels",
+      { username, password }
+    );
+
+    if (response.data.status) {
+      const user = response.data.data[0]; // Ab ye error nahi dega
+      const role = user.role;
+      const token = user.token;
+
+      console.log("Role:", role);
+      console.log("Token:", token);
+
+      // LocalStorage me save karo
+      sessionStorage.setItem("token", token);
+      sessionStorage.setItem("role", role);
+       goto("/")
+      return user;
+    } else {
+      console.error(response.data.mass);
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+  }
+};
+const submit=(e:any)=>{
+   e.preventDefault();
+  loginUser(user.username,user.password)
+}
   return (
     <div className="flex flex-col flex-1">
       <div className="w-full max-w-md pt-10 mx-auto">
@@ -33,13 +88,13 @@ export default function SignInForm() {
           <div>
            
             
-            <form>
+            <form onSubmit={submit}>
               <div className="space-y-6">
                 <div>
                   <Label>
-                    Email <span className="text-error-500">*</span>{" "}
+                    User Name <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input placeholder="info@gmail.com" />
+                  <Input placeholder="Admin name" value={user.username} onChange={(e)=>{setuser((prev)=>({...prev,username:e.target.value}))}}/>
                 </div>
                 <div>
                   <Label>
@@ -49,6 +104,8 @@ export default function SignInForm() {
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
+                      value={user.password}
+                      onChange={(e)=>{setuser((prev)=>({...prev,password:e.target.value}))}}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -77,24 +134,14 @@ export default function SignInForm() {
                   </Link>
                 </div>
                 <div>
-                  <Button className="w-full"  size="sm">
+                  <Button className="w-full"  size="sm" >
                     Sign in
                   </Button>
                 </div>
               </div>
             </form>
 
-            <div className="mt-5">
-              <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                Don&apos;t have an account? {""}
-                <Link
-                  to="/signup"
-                  className="text-orange-600 hover:text-brand-600 dark:text-brand-400"
-                >
-                  Sign Up
-                </Link>
-              </p>
-            </div>
+           
           </div>
         </div>
       </div>
@@ -103,6 +150,7 @@ export default function SignInForm() {
 }
 
 
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJUcnZhbCBUZWNoIiwiUGFzc3dvcmQiOiJTYWxpbUBUZWNoIiwiZXhwIjoxNzU1MDc3NTA3fQ.IdaN_235OXEXJU9QlOY25SzZiRJqcE_qu1C2KI7Zg_4
 
 
 

@@ -2,7 +2,7 @@ import PageBreadcrumb from "../common/PageBreadCrumb";
 import PageMeta from "../common/PageMeta";
 import Createblog from "./Createbloge";
 import Uploader from "./Uploader";
-import Blogcontent from "./blogcontent";
+import Blogcontent from "./Blogcontent";
 import { useBlog } from "./BlogContext";
 import Alert from "../ui/alert/Alert";
 
@@ -37,7 +37,11 @@ export default function Bloglayout() {
 
             {
                 message == "Datafill" ? <>
-                <PageMeta
+                <Blogcontent />
+                   
+                </> : <>
+                 
+                 <PageMeta
                         title="Travel tech Dashboard"
                         description="This is Travel tech Dashboard"
                     />
@@ -48,9 +52,6 @@ export default function Bloglayout() {
                             <Uploader />
                         </div>
                     </div>
-                   
-                </> : <>
-                 <Blogcontent />
                     </>
             }
 

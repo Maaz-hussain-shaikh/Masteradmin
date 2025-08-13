@@ -19,51 +19,70 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import Blogpage from "./pages/Blog/Blogpage";
+import ProtectedRoute from "./components/auth/Authcheck";
+import RoleGuard from "./components/auth/RoleGuard";
 
 export default function App() {
+
+const userRole = sessionStorage.getItem("role");
+
   return (
     <>
       <Router>
-        <ScrollToTop />
-        <Routes>
-          {/* Dashboard Layout */}
-          <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
+  <ScrollToTop />
+  <Routes>
+    {/* Dashboard Layout with Protected Routes */}
+    <Route
+      element={
+        <ProtectedRoute>
+          <AppLayout />
+        </ProtectedRoute>
+      }
+    >
+      <Route index path="/" element={<Home />} />
 
-            {/* Bloge */}
-            <Route path="/Create-bloge" element={<Blogpage/>} />
-            {/* Others Page */}
-            <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/blank" element={<Blank />} />
+      {/* Bloge */}
+      <Route path="/Create-bloge" element={<Blogpage />} />
 
-            {/* Forms */}
-            <Route path="/form-elements" element={<FormElements />} />
+      {/* Others Page */}
+      <Route path="/profile" element={<UserProfiles />} />
+      
+      
+<Route path="/calendar" element={
+  <RoleGuard allowedRoles={['"admin"']} userRole={userRole}>
+      <Calendar />
+    </RoleGuard>
+ } />
+      
+      <Route path="/blank" element={<Blank />} />
 
-            {/* Tables */}
-            <Route path="/basic-tables" element={<BasicTables />} />
+      {/* Forms */}
+      <Route path="/form-elements" element={<FormElements />} />
 
-            {/* Ui Elements */}
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/avatars" element={<Avatars />} />
-            <Route path="/badge" element={<Badges />} />
-            <Route path="/buttons" element={<Buttons />} />
-            <Route path="/images" element={<Images />} />
-            <Route path="/videos" element={<Videos />} />
+      {/* Tables */}
+      <Route path="/basic-tables" element={<BasicTables />} />
 
-            {/* Charts */}
-            <Route path="/line-chart" element={<LineChart />} />
-            <Route path="/bar-chart" element={<BarChart />} />
-          </Route>
+      {/* Ui Elements */}
+      <Route path="/alerts" element={<Alerts />} />
+      <Route path="/avatars" element={<Avatars />} />
+      <Route path="/badge" element={<Badges />} />
+      <Route path="/buttons" element={<Buttons />} />
+      <Route path="/images" element={<Images />} />
+      <Route path="/videos" element={<Videos />} />
 
-          {/* Auth Layout */}
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
+      {/* Charts */}
+      <Route path="/line-chart" element={<LineChart />} />
+      <Route path="/bar-chart" element={<BarChart />} />
+    </Route>
 
-          {/* Fallback Route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
+    {/* Auth Layout */}
+    <Route path="/signin" element={<SignIn />} />
+    <Route path="/signup" element={<SignUp />} />
+
+    {/* Fallback Route */}
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+</Router>
     </>
   );
 }
