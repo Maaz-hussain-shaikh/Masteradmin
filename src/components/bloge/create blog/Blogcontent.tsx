@@ -1,18 +1,18 @@
-import PageBreadcrumb from "../common/PageBreadCrumb";
-import PageMeta from "../common/PageMeta";
-import { useState, useRef } from "react";
+import PageBreadcrumb from "../../common/PageBreadCrumb";
+import PageMeta from "../../common/PageMeta";
+import { useState, useRef, useEffect } from "react";
 import ReactQuill, { Quill } from "react-quill-new";
 import DOMPurify from "dompurify";
 import "react-quill-new/dist/quill.snow.css";
 import "./BlogContent.css"; // <-- custom CSS file import
 import { useBlog } from "./BlogContext";
-import { Modal } from "../ui/modal";
-import { useModal } from "../../hooks/useModal";
-import Label from "../form/Label";
-import Button from "../ui/button/Button";
-import Input from "../form/input/InputField";
-import axios from "axios";
+import { Modal } from "../../ui/modal";
+import { useModal } from "../../../hooks/useModal";
+import Authmodel from "./Authmodel";
+
 // --------- register custom sizes/colors ----------
+
+
 const Size = Quill.import("formats/size") as any;
 Size.whitelist = ["small", "medium", "large"];
 
@@ -72,22 +72,16 @@ const modules = {
 
 interface BlogData {
   html: string;
-  timestamp: number;
 }
 
 export default function Blogcontent() {
   const { isOpen, openModal, closeModal } = useModal();
   const [content, setContent] = useState("");
-  const [apdata, setapdata] = useState({
-    name:"",
-    password:""
-  });
   const [jsonData, setJsonData] = useState<BlogData | undefined>(undefined);
   const editorRef = useRef<any>(null);
-  const { setMessage } = useBlog();
-
-  const handleSave = () => {
-    const html = content;
+  const { setMessage ,setData} = useBlog();
+useEffect(()=>{
+const html = content;
     const clean = DOMPurify.sanitize(html, {
       ALLOWED_TAGS: [
         // Headings
@@ -127,34 +121,12 @@ export default function Blogcontent() {
 
     const payload = {
       html: clean,
-      timestamp: Date.now(),
     };
     setJsonData(payload);
+    setData((prev)=>({...prev,content:JSON.stringify(payload.html)}))
     console.log(payload);
-  };
-
-  const handleSaveblog = async (e:any) => {
-          e.preventDefault();
-          const URL = "https://traveltechbackend.vercel.app/traveltech/api/login";
-          try {
-              const response = await axios.post(URL, {
-                  email: apdata.name,
-                  password: apdata.password
-              });
   
-              // Agar success ho
-              if (response.data.success) {
-                 const {token}= response.data
-                 setapdata((prev)=>({...prev,name:"",password:""}))
-                  console.log(token)
-              } else {
-                 alert("kuch gadbad hai bro")
-              }
-          } catch (error) {
-              console.error('Login error:', error);
-              
-          }
-      };
+},[content])  
   return (
     <div>
       <PageMeta
@@ -183,12 +155,7 @@ export default function Blogcontent() {
               modules={modules}
               className="min-h-[400px] mb-6"
             />
-            <button
-              onClick={handleSave}
-              className="px-5 py-3 bg-orange-600 text-white rounded-md hover:bg-gray-300 hover:text-orange-600"
-            >
-              Preview
-            </button>
+           
             <button
               onClick={() => { setMessage("") }}
               className="px-5 py-3 ml-4 bg-orange-600 text-white rounded-md hover:bg-gray-300 hover:text-orange-600"
@@ -201,7 +168,7 @@ export default function Blogcontent() {
             <div className="ql-snow">
               <div
                 className="ql-editor"
-                dangerouslySetInnerHTML={{ __html: jsonData.html }}
+                dangerouslySetInnerHTML={{ __html:  jsonData.html }}
               />
 
             </div>
@@ -209,44 +176,10 @@ export default function Blogcontent() {
         </div>
 
       </div>
-
-      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
-        <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-11">
-          <div className="px-2 pr-14">
-            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Access Verification
-            </h4>
-            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update your details to keep your profile up-to-date.
-            </p>
-          </div>
-          <form className="flex flex-col" onSubmit={handleSaveblog}>
-            <div className="px-2 overflow-y-auto custom-scrollbar">
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Approval key</Label>
-                  <Input type="text" placeholder="Approval key"
-                  value={apdata.name}  onChange={(e)=>{setapdata((prev)=>({...prev,name:e.target.value}))}}/>
-                </div>
-                <div>
-                  <Label>Password</Label>
-                  <Input type="Password" placeholder="Password" value={apdata.password}  onChange={(e)=>{setapdata((prev)=>({...prev,password:e.target.value}))}}/>
-                </div>
-
-
-              </div>
-            </div>
-            <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-              <Button size="sm" variant="outline" onClick={closeModal}>
-                Close
-              </Button>
-              <Button size="sm">
-                Upload Blog
-              </Button>
-            </div>
-          </form>
-        </div>
-      </Modal>
+<Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
+<Authmodel/>
+</Modal>
+     
     </div>
   );
 }

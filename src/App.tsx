@@ -21,68 +21,100 @@ import Home from "./pages/Dashboard/Home";
 import Blogpage from "./pages/Blog/Blogpage";
 import ProtectedRoute from "./components/auth/Authcheck";
 import RoleGuard from "./components/auth/RoleGuard";
+import CreateItlayout from "./components/Itinerary/Createitinerary/Itinerarylyout";
+import PublishBloglayout from "./components/bloge/create blog/publish blog/PublishBloglayout";
+import ItineraryLayout from "./components/Itinerary/all itinerarys/ItineraryLayout";
+import ItinerarypageLayout from "./components/Itinerary/Itinerary page/ItinerarypageLayout";
 
 export default function App() {
 
-const userRole = sessionStorage.getItem("role");
+  const userRole = localStorage.getItem("role");
 
   return (
     <>
       <Router>
-  <ScrollToTop />
-  <Routes>
-    {/* Dashboard Layout with Protected Routes */}
-    <Route
-      element={
-        <ProtectedRoute>
-          <AppLayout />
-        </ProtectedRoute>
-      }
-    >
-      <Route index path="/" element={<Home />} />
+        <ScrollToTop />
+        <Routes>
+          {/* Dashboard Layout with Protected Routes */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index path="/" element={<Home />} />
 
-      {/* Bloge */}
-      <Route path="/Create-bloge" element={<Blogpage />} />
+            {/* Bloge */}
 
-      {/* Others Page */}
-      <Route path="/profile" element={<UserProfiles />} />
-      
-      
-<Route path="/calendar" element={
-  <RoleGuard allowedRoles={['"admin"']} userRole={userRole}>
-      <Calendar />
-    </RoleGuard>
- } />
-      
-      <Route path="/blank" element={<Blank />} />
+            <Route path="/Create-blog" element={
+              <RoleGuard allowedRoles={["admin"]} userRole={userRole}>
+                <Blogpage />
+              </RoleGuard>
+            } />
+            <Route path="/Blog" element={
+              <RoleGuard allowedRoles={["admin"]} userRole={userRole}>
+                <PublishBloglayout />
+              </RoleGuard>
+            } />
 
-      {/* Forms */}
-      <Route path="/form-elements" element={<FormElements />} />
+            {/* Itinerary */}
+            <Route path="/Create-Itinerary" element={
+              <RoleGuard allowedRoles={["admin"]} userRole={userRole}>
+                <CreateItlayout />
+              </RoleGuard>
+            } />
+            <Route path="/All-Itinerary" element={
+              <RoleGuard allowedRoles={["admin"]} userRole={userRole}>
+                <ItineraryLayout/>
+              </RoleGuard>
+            } />
+            <Route path="All-Itinerary/ItineraryPage/:slug" element={
+              <RoleGuard allowedRoles={["admin"]} userRole={userRole}>
+                <ItinerarypageLayout/>
+              </RoleGuard>
+            } />
 
-      {/* Tables */}
-      <Route path="/basic-tables" element={<BasicTables />} />
 
-      {/* Ui Elements */}
-      <Route path="/alerts" element={<Alerts />} />
-      <Route path="/avatars" element={<Avatars />} />
-      <Route path="/badge" element={<Badges />} />
-      <Route path="/buttons" element={<Buttons />} />
-      <Route path="/images" element={<Images />} />
-      <Route path="/videos" element={<Videos />} />
+            {/* Others Page */}
+            <Route path="/profile" element={<UserProfiles />} />
 
-      {/* Charts */}
-      <Route path="/line-chart" element={<LineChart />} />
-      <Route path="/bar-chart" element={<BarChart />} />
-    </Route>
 
-    {/* Auth Layout */}
-    <Route path="/signin" element={<SignIn />} />
-    <Route path="/signup" element={<SignUp />} />
+            <Route path="/calendar" element={
+              <RoleGuard allowedRoles={['admin']} userRole={userRole}>
+                <Calendar />
+              </RoleGuard>
+            } />
 
-    {/* Fallback Route */}
-    <Route path="*" element={<NotFound />} />
-  </Routes>
-</Router>
+            <Route path="/blank" element={<Blank />} />
+
+            {/* Forms */}
+            <Route path="/form-elements" element={<FormElements />} />
+
+            {/* Tables */}
+            <Route path="/basic-tables" element={<BasicTables />} />
+
+            {/* Ui Elements */}
+            <Route path="/alerts" element={<Alerts />} />
+            <Route path="/avatars" element={<Avatars />} />
+            <Route path="/badge" element={<Badges />} />
+            <Route path="/buttons" element={<Buttons />} />
+            <Route path="/images" element={<Images />} />
+            <Route path="/videos" element={<Videos />} />
+
+            {/* Charts */}
+            <Route path="/line-chart" element={<LineChart />} />
+            <Route path="/bar-chart" element={<BarChart />} />
+          </Route>
+
+          {/* Auth Layout */}
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+
+          {/* Fallback Route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
     </>
   );
 }

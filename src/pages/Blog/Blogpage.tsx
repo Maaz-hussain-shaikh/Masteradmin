@@ -1,6 +1,6 @@
 
-import { BlogProvider } from "../../components/bloge/BlogContext";
-import Bloglayout from "../../components/bloge/Bloglyout";
+import { BlogProvider } from "../../components/bloge/create blog/BlogContext";
+import Bloglayout from "../../components/bloge/create blog/Bloglyout";
 export default function Blogpage() {
 
     return (

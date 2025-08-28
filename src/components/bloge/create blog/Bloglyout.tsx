@@ -1,10 +1,10 @@
-import PageBreadcrumb from "../common/PageBreadCrumb";
-import PageMeta from "../common/PageMeta";
+import PageBreadcrumb from "../../common/PageBreadCrumb";
+import PageMeta from "../../common/PageMeta";
 import Createblog from "./Createbloge";
 import Uploader from "./Uploader";
 import Blogcontent from "./Blogcontent";
 import { useBlog } from "./BlogContext";
-import Alert from "../ui/alert/Alert";
+import Alert from "../../ui/alert/Alert";
 
 export default function Bloglayout() {
 
@@ -13,35 +13,39 @@ export default function Bloglayout() {
         <>
             {message && (
                 <div className="  mb-4">
-                    {message == "success" ?<>
-                    <Alert
-            variant="success"
-            title="Success Message"
-            message="Be cautious when performing this action."
-            showLink={false}
-          />
+                    {message == "success" ? <>
+                        <Alert
+                            variant="success"
+                            title="Success Message"
+                            message="Be cautious when performing this action."
+                            showLink={false}
+                        />
+                    </> : <>
+                    {message == "Datafill" ?<>
+                    
                     </>:<>
                     <Alert
-                        variant="warning"
-                        title="Warning Message"
-                        message={message}
-                        showLink={true}
-                        linkHref="/"
-                        linkText="Learn more"
-                    />
+                            variant="warning"
+                            title="Warning Message"
+                            message={message}
+                            showLink={true}
+                            linkHref="/"
+                            linkText="Learn more"
+                        /></>}
+                        
                     </>}
-                    
+
                 </div>
             )}
 
 
             {
                 message == "Datafill" ? <>
-                <Blogcontent />
-                   
+                    <Blogcontent />
+
                 </> : <>
-                 
-                 <PageMeta
+
+                    <PageMeta
                         title="Travel tech Dashboard"
                         description="This is Travel tech Dashboard"
                     />
@@ -52,7 +56,7 @@ export default function Bloglayout() {
                             <Uploader />
                         </div>
                     </div>
-                    </>
+                </>
             }
 
 

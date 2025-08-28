@@ -29,15 +29,22 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
+
     name: "Dashboard",
     role: ["admin"],
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    subItems: [{ name: "Create Itinerary", path: "/", pro: false }],
   },
   {
-    name: "Bloge",
+    name: "Blog",
     role: ["admin"],
     icon: <ListIcon />,
-    subItems: [{ name: "Create Bloge", path: "/Create-Bloge", pro: false }, { name: "Edit Bloge", path: "/Edit-Bloge", pro: false }],
+    subItems: [{ name: "Create Blog", path: "/Create-Blog", pro: false }, { name: "Edit Blog", path: "/Edit-Blog", pro: false },{ name: "Publish Blog", path: "/Blog", pro: false }],
+  },
+  {
+    name: "Itinerary",
+    role: ["admin"],
+    icon: <BoxCubeIcon />,
+    subItems: [{ name: "All itinerary", path: "/All-Itinerary", pro: false },{ name: "Create itinerary", path: "/Create-Itinerary", pro: false } ],
   },
   // {
   //   icon: <CalenderIcon />,
@@ -180,7 +187,7 @@ const AppSidebar: React.FC = () => {
     <ul className="flex flex-col gap-4">
       {items.map((nav, index) => (
         <li key={nav.name}>
-          <RoleGuard allowedRoles={[`"${nav.role}"`]} userRole={userRole}>
+          <RoleGuard allowedRoles={[`${nav.role}`]} userRole={userRole}>
             {nav.subItems ? (
               <button
                 onClick={() => handleSubmenuToggle(index, menuType)}
@@ -292,7 +299,7 @@ const AppSidebar: React.FC = () => {
       ))}
     </ul>
   );
-  const userRole = sessionStorage.getItem("role");
+  const userRole = localStorage.getItem("role");
   return (
     <aside
       className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 

@@ -7,6 +7,8 @@ import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import { API_URLS } from "../../config/config";
+
 interface LoginUser {
   id: number;
   username: string;
@@ -28,7 +30,7 @@ export default function SignInForm() {
   const goto=useNavigate()
   const [isChecked, setIsChecked] = useState(false);
  useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (token) {
       goto("/", { replace: true }); // already logged in → dashboard
     }
@@ -36,7 +38,7 @@ export default function SignInForm() {
    const loginUser = async (username: string, password: string) => {
   try {
     const response = await axios.post<LoginResponse>(
-      "https://aaliyaenterprises.com/TravelTech/LoginPannels",
+      `${API_URLS.login}`,
       { username, password }
     );
 
@@ -49,8 +51,8 @@ export default function SignInForm() {
       console.log("Token:", token);
 
       // LocalStorage me save karo
-      sessionStorage.setItem("token", token);
-      sessionStorage.setItem("role", role);
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
        goto("/")
       return user;
     } else {

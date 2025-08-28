@@ -1,11 +1,11 @@
-import ComponentCard from "../common/ComponentCard";
-import Label from "../form/Label";
-import Input from "../form/input/InputField";
-import TextArea from "../form/input/TextArea";
-import { UserCircleIcon } from "../../icons";
-import Select from "../form/Select";
-import MultiSelect from "../form/MultiSelect";
-import Radio from "../form/input/Radio";
+import ComponentCard from "../../common/ComponentCard";
+import Label from "../../form/Label";
+import Input from "../../form/input/InputField";
+import TextArea from "../../form/input/TextArea";
+import { UserCircleIcon } from "../../../icons";
+import Select from "../../form/Select";
+import MultiSelect from "../../form/MultiSelect";
+import Radio from "../../form/input/Radio";
 import { useBlog } from "./BlogContext";
 
 export default function Createblog() {
@@ -54,7 +54,6 @@ export default function Createblog() {
             />
             <span className="absolute left-0 top-1/2 -translate-y-1/2 border-r border-gray-200 px-3.5 py-3 text-gray-500 dark:border-gray-800 dark:text-gray-400">
               <UserCircleIcon className="size-6" />
-
             </span>
           </div>
         </div>
@@ -64,6 +63,15 @@ export default function Createblog() {
             value={blogdata.title}
            hint={`${errors.title?"Please write your blog heading":""}`}
             onChange={(val) => setData(prev => ({ ...prev, title: val }))}
+            rows={3}
+          />
+        </div>
+        <div>
+          <Label>Meta Discription</Label>
+          <TextArea
+            value={blogdata.metadiscription}
+           hint={`${errors.metadiscription?"Please write your blog Meta discription":""}`}
+            onChange={(val) => setData(prev => ({ ...prev, metadiscription: val }))}
             rows={3}
           />
         </div>
@@ -113,11 +121,10 @@ export default function Createblog() {
             />
             <Input
               type="Text"
-              name="time"
-              error={errors.time}
-              value={blogdata.time}
+              name="specialname"
+              value={blogdata.specialname}
               onChange={handleChange}
-              placeholder="5 min"
+              placeholder="Special name"
             />
           </div>
 

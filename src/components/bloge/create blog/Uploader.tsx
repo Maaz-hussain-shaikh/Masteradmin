@@ -1,62 +1,31 @@
-import ComponentCard from "../common/ComponentCard";
+import ComponentCard from "../../common/ComponentCard";
 import { useDropzone } from "react-dropzone";
-import Label from "../form/Label";
-import axios from "axios"
+import Label from "../../form/Label";
 import { useBlog } from "./BlogContext";
-import FileInput from "../form/input/FileInput";
-import MultiSelect from "../form/MultiSelect";
+import FileInput from "../../form/input/FileInput";
+import MultiSelect from "../../form/MultiSelect";
+
 // import Dropzone from "react-dropzone";
 
 const Uploader: React.FC = () => {
   const { blogdata, setData, setErrors,setMessage } = useBlog();
+  ;
 
-  const uploadImageAndGetUrl = async (imageFile: File, folder: string, name: string) => {
-    if (!imageFile) {
-      alert('File not found!');
-      return null;
-    }
-
-    const formData = new FormData();
-    formData.append("folder", folder);
-    formData.append("image", imageFile);
-    const Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJNYXN0ZXJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NDkxMTY5NiwiZXhwIjoxNzU0OTk4MDk2fQ.jTiicg6kFJGSF5H_ZtcqtFJI5a7ydgkLXfiG1iRVouM"
-
-    try {
-
-      const response = await axios.post(
-        "https://traveltechbackend.vercel.app/traveltech/api/addimgs",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${Token}`,
-            'Content-Type': 'multipart/form-data'
-          }
-        }
-      );
-
-      if (response.status === 200) {
-        console.log(response.data.imageUrl)
-        setData((prev) => ({
-          ...prev,
-          [name]: response.data.imageUrl,
-        }));
-
-
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      return null;
-
-    }
-  };
-  
+ 
   const onDrop = (acceptedFiles: File[]) => {
+
     if (blogdata.destinationName == "") {
       setMessage("Please fill blog destination name");
     setTimeout(() => setMessage(""), 2000);
     } else {
+       const file = acceptedFiles[0];
+       setData((prev) => ({
+          ...prev,
+          banner: file,
+        }));
+     
       // Handle file uploads here
-      uploadImageAndGetUrl(acceptedFiles[0], blogdata.destinationName, "banner")
+      // uploadImageAndGetUrl(acceptedFiles[0], blogdata.destinationName, "banner")
     }
 
   };
@@ -68,7 +37,12 @@ const Uploader: React.FC = () => {
     } else {
       const file = event.target.files?.[0];
       if (file) {
-        uploadImageAndGetUrl(file, blogdata.name, "userprofile")
+        
+         setData((prev) => ({
+          ...prev,
+          userprofile: file,
+        }));
+        // uploadImageAndGetUrl(file, blogdata.name, "userprofile")
       }
     }
 
@@ -86,7 +60,7 @@ const Uploader: React.FC = () => {
 
 
   const validate = () => {
-    const requiredFields = ["name", "title", "type", "destinationName", "state", "country", "time", "banner"];
+    const requiredFields = ["name", "title", "type", "destinationName", "state", "country", "banner"];
     let newErrors: Record<string, boolean> = {};
 
     requiredFields.forEach((field) => {
@@ -112,7 +86,7 @@ const Uploader: React.FC = () => {
   return (
     <ComponentCard title="Upload Banner">
       <div className="transition border border-gray-300 border-dashed cursor-pointer dark:hover:border-orange-600 dark:border-gray-700 rounded-xl hover:border-orange-600">
-        {blogdata.banner == "" ? <form
+        {blogdata.banner==null ? <form
           {...getRootProps()}
           className={`dropzone rounded-xl   border-dashed border-gray-300 p-7 lg:p-10
         ${isDragActive
@@ -159,11 +133,16 @@ const Uploader: React.FC = () => {
             </span>
           </div>
         </form> : <>
-          <img
-            src={blogdata.banner}
+          {blogdata.banner ? (
+       <img
+            src={URL.createObjectURL(blogdata.banner)}
             alt="Cover"
             className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
           />
+      ) : (
+        <p>No file selected</p>
+      )}
+         
         </>}
 
 
@@ -182,13 +161,18 @@ const Uploader: React.FC = () => {
       </div>
       <div>
         <Label>Writer Photo</Label>
-        {blogdata.userprofile == "" ? <><FileInput onChange={handleFileChange} className="custom-class" /></> :
+        {blogdata.userprofile== null ? <><FileInput onChange={handleFileChange} className="custom-class" /></> :
           <>
-            <img
-              src={blogdata.userprofile}
-              alt="Cover"
-              className="w-30 border h-30 border-gray-200 rounded-xl dark:border-gray-800"
-            />
+           
+            {blogdata.userprofile ? (
+       <img
+            src={URL.createObjectURL(blogdata.userprofile)}
+            alt="Cover"
+            className="w-30 border h-30 border-gray-200 rounded-xl dark:border-gray-800"
+          />
+      ) : (
+        <p>No file selected</p>
+      )}
           </>}
 
       </div>

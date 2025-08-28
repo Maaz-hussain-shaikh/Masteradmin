@@ -8,12 +8,15 @@ type BlogData = {
   destinationName: string;
   state: string;
   country: string;
-  time: string;
+  specialname: string;
   region: string;
   seotag: string[];
-  banner: string;
+  tag:string;
+  banner: File | null;
   youtubelink: string[];
-  userprofile: string;
+  userprofile: File | null;
+  metadiscription:string;
+  content:string;
 };
 
 type ErrorState = Record<string, boolean>;
@@ -38,12 +41,15 @@ export const BlogProvider: React.FC<{ children: React.ReactNode }> = ({ children
     destinationName: "",
     state: "",
     country: "",
-    time: "",
+    specialname: "",
     region: "India",
+    tag:"",
     seotag: [],
-    banner: "",
+    banner: null,
     youtubelink: [],
-    userprofile: "",
+    userprofile: null,
+    metadiscription:"",
+    content:""
   });
 
   const [errors, setErrors] = useState<ErrorState>({});
