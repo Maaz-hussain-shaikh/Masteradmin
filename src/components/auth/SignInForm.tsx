@@ -46,13 +46,12 @@ export default function SignInForm() {
       const user = response.data.data[0]; // Ab ye error nahi dega
       const role = user.role;
       const token = user.token;
-
-      console.log("Role:", role);
-      console.log("Token:", token);
+      const name=user.username      
 
       // LocalStorage me save karo
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
+      localStorage.setItem("username", name);
        goto("/")
       return user;
     } else {

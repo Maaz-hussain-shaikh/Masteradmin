@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface ItineraryFormData {
   itineraryTitle: string;
+  metadis:string;
   nameOfTrip: string;
   tripDuration: string;
   isSpecialEvent: string;
@@ -14,9 +15,18 @@ interface ItineraryFormData {
   doublePrice: number;
   triplePrice: number;
   itineraryType: string;
-  country: string;
-  state: string;
-  city: string;
+  country: {
+    countryCode:string;
+    name:string
+  };
+  state: {
+    stateID:number;
+    stateName:string
+  };
+  city: {
+    cityID:number;
+    cityName:string;
+  };
   itineraryDescription: string;
   itineraryNote: string;
 }
@@ -29,6 +39,7 @@ interface ItineraryFormContextType {
 
 const defaultFormData: ItineraryFormData = {
   itineraryTitle: "",
+  metadis:"",
   nameOfTrip: "",
   tripDuration: "",
   isSpecialEvent: "Normal trip",
@@ -40,9 +51,18 @@ const defaultFormData: ItineraryFormData = {
   doublePrice: 0,
   triplePrice: 0,
   itineraryType: "",
-  country: "",
-  state: "",
-  city: "",
+  country: {
+    countryCode:"",
+    name:""
+  },
+  state: {
+    stateID:0,
+    stateName:""
+  },
+  city: {
+    cityID:0,
+    cityName:""
+  },
   itineraryDescription: "",
   itineraryNote: "",
 };

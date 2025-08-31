@@ -3,17 +3,7 @@ import Label from "../../form/Label";
 import Input from "../../form/input/InputField";
 import TextArea from "../../form/input/TextArea";
 import { UserCircleIcon } from "../../../icons";
-import Select from "../../form/Select";
 import { useItineraryForm } from "../ItineraryContext";
-
-
-const options = [
-  { value: "Personal trip", label: "Personal tripg" },
-  { value: "Group trip", label: "Group trip" },
-  { value: "Honeymoon Trip", label: "Honeymoon Trip" },
-  { value: "One Day Treks", label: "One Day Treks" },
-  { value: "International Trip", label: "International Trip" },
-];
 
 
 
@@ -59,45 +49,24 @@ export default function Itiform() {
             onChange={(val) => updateForm("itineraryDescription", val)}
           />
         </div>
+        
+       <div>
+        <Label>Itinerary Note</Label>
+        <TextArea
+          value={formData.itineraryNote}
+          onChange={(val) => updateForm("itineraryNote", val)}
+          rows={3}
+        />
+      </div>  
+          
         <div>
           <Label>Meta Discription</Label>
           <TextArea
-            value=""
+            value={formData.metadis}
             rows={3}
+            onChange={(val) => updateForm("metadis", val)}
           />
         </div>
-        <div>
-          <Label>Type of Trip</Label>
-          <Select
-            options={options}
-            placeholder="Type of Trip"
-            className="dark:bg-dark-900"
-             value={formData.itineraryType}
-              onChange={(val) => updateForm("itineraryType",val)}
-          />
-        </div>
-        <div>
-          <Label>Destination Name & Duration</Label>
-          <div className="flex gap-3">
-            <Input
-              type="text"
-              placeholder="Name of Trip"
-              value={formData.nameOfTrip}
-              onChange={(e) => updateForm("nameOfTrip", e.target.value)}
-
-            />
-            <Input
-              name="state"
-              type="text"
-              placeholder="Duration of trip"
-              value={formData.tripDuration}
-              onChange={(e) => updateForm("tripDuration", e.target.value)}
-            />
-          </div>
-
-        </div>
-       
-        
       </div>
     </ComponentCard>
 

@@ -17,35 +17,38 @@ const modules = {
       [{ list: "ordered" }, { list: "bullet" }],
       [{ align: [] }],
       [{ color: ["#000000", "#1E3A8A", "#D97706", "#047857"] }],
-      ["link"],
       ["clean"],
     ],
   },
 };
 
 interface Props {
-  days: {
-    itinerary_days_title: string;
-    itinerary_days_description: string;
-    itinerary_days_id: number;
+  data: {
+    itinerary_addOns_title: string;
+    itinerary_addOns_description: string;
+    itinerary_addOns_id: number;
+    itinerary_addOns_amount:number;
     itinerary_id: number;
-    itinerary_days_creationtime: string;
+    itinerary_addOns_creation: string;
   };
 }
 
-const Daysmodal: React.FC<Props> = ({ days }) => {
+const EditAddon: React.FC<Props> = ({ data }) => {
   const token = localStorage.getItem("token");
 const { slug } = useParams();
-  const [content, setContent] = useState(days.itinerary_days_description);
+  const [content, setContent] = useState(data.itinerary_addOns_description);
+
   const [editdata, setEdit] = useState({
-    title: days.itinerary_days_title,
-    description: days.itinerary_days_description,
+    title: data.itinerary_addOns_title,
+    price:data.itinerary_addOns_amount,
+    description: data.itinerary_addOns_description,
   });
 
   const editorRef = useRef<any>(null);
 
   const handleTitleChange = (e: any) => {
-    setEdit({ ...editdata, title: e.target.value });
+    let name=e.target.name
+    setEdit({ ...editdata, [name]: e.target.value });
   };
 
   // Save changes API
@@ -71,13 +74,13 @@ const { slug } = useParams();
       });
 
       const payload = {        
-        itinerary_days_highlights: "Welcome drinks, dinner, beach walk",
-        itinerary_days_title: editdata.title,
-        itinerary_days_description: cleanHTML,
+        itinerary_addOns_amount: editdata.price,
+        itinerary_addOns_title: editdata.title,
+        itinerary_addOns_description: cleanHTML,
       };
 
       const response = await axios.put(
-        API_URLS.itinerary.Edititinerarydays(slug,days.itinerary_days_id), // <-- tumhare config me update wala API hona chahiye
+        API_URLS.itinerary.Editaddon(slug,data.itinerary_addOns_id), // <-- tumhare config me update wala API hona chahiye
         payload,
         {
           headers: {
@@ -88,7 +91,7 @@ const { slug } = useParams();
       );
 
       if (response.status === 200) {
-        console.log("Day updated successfully ✅", response.data);
+        console.log("activites updated successfully ✅", response.data);
       }
     } catch (error) {
       console.error("Error updating day ❌", error);
@@ -99,24 +102,34 @@ const { slug } = useParams();
     <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-11">
       <div className="px-2 pr-14">
         <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-          Edit Day Schedule
+          Edit Activites
         </h4>
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-          Update the title and description of this day
+          Update the title and description of Activites
         </p>
       </div>
 
       <form className="flex flex-col" onSubmit={handleSubmit}>
         <div className="px-2 overflow-y-auto custom-scrollbar">
           <div className="mb-4">
-            <Label>Heading of Day-{days.itinerary_days_id}</Label>
+            <Label>Name of Activite</Label>
             <Input
               type="text"
+              name="title"
               placeholder="We will explore monastery today"
               value={editdata.title}
               onChange={handleTitleChange}
             />
           </div>
+
+          <Label>Price of activite</Label>
+            <Input
+              type="number"
+              name="price"
+              placeholder="We will explore monastery today"
+              value={editdata.price}
+              onChange={handleTitleChange}
+            />
 
           <ReactQuill
             ref={editorRef}
@@ -124,11 +137,11 @@ const { slug } = useParams();
             value={content}
             onChange={setContent}
             modules={modules}
-            className=""
+            className="m-4"
           />
 
           <p className="text-xs mt-2">
-            Created - {days.itinerary_days_creationtime}
+            Created - {data.itinerary_addOns_creation}
           </p>
         </div>
 
@@ -142,4 +155,4 @@ const { slug } = useParams();
   );
 };
 
-export default Daysmodal;
+export default EditAddon;

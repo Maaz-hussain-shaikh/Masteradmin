@@ -19,6 +19,7 @@ type CardProps = {
 
 const ItineraryCard: React.FC<CardProps> = ({
     itinerary_title,
+    itinerary_id,
     city,
     country,
     state,
@@ -35,7 +36,7 @@ const ItineraryCard: React.FC<CardProps> = ({
      const [date,time]=itinerarycreationDate.split("T")
     return (
        
-        <div className="relative w-full rounded-xl overflow-hidden shadow-md bg-white group" onClick={()=>{location("ItineraryPage")}}>
+        <div className="relative w-full rounded-xl overflow-hidden shadow-md bg-white group" onClick={()=>{location(`ItineraryPage/${itinerary_id}`)}}>
             {/* Image */}
             <div className="relative">
                 <img

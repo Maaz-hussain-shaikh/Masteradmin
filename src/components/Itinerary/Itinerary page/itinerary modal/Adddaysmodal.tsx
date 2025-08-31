@@ -4,9 +4,9 @@ import Label from "../../../form/Label";
 import Button from "../../../ui/button/Button";
 import DOMPurify from "dompurify";
 import { useRef, useState } from "react";
+import { useParams } from "react-router";
 import axios from "axios";
 import { API_URLS } from "../../../../config/config";
-import { useParams } from "react-router";
 
 const modules = {
   toolbar: {
@@ -16,43 +16,27 @@ const modules = {
       ["bold", "underline", "strike"],
       [{ list: "ordered" }, { list: "bullet" }],
       [{ align: [] }],
-      [{ color: ["#000000", "#1E3A8A", "#D97706", "#047857"] }],
+      [{ color: ["#e5e7eb", "#D97706", "#71717e"] }],
       ["link"],
       ["clean"],
     ],
   },
 };
 
-interface Props {
-  days: {
-    itinerary_days_title: string;
-    itinerary_days_description: string;
-    itinerary_days_id: number;
-    itinerary_id: number;
-    itinerary_days_creationtime: string;
-  };
-}
-
-const Daysmodal: React.FC<Props> = ({ days }) => {
+const Adddaysmodal = () => {
+  const { slug } = useParams(); // yaha tumhare route ke param ka naam check kar lo
   const token = localStorage.getItem("token");
-const { slug } = useParams();
-  const [content, setContent] = useState(days.itinerary_days_description);
-  const [editdata, setEdit] = useState({
-    title: days.itinerary_days_title,
-    description: days.itinerary_days_description,
-  });
-
+const Editorname = localStorage.getItem("username");
+  const [content, setContent] = useState("");
+  const [title, setTitle] = useState("");
   const editorRef = useRef<any>(null);
 
-  const handleTitleChange = (e: any) => {
-    setEdit({ ...editdata, title: e.target.value });
-  };
-
-  // Save changes API
+  // Submit handler
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     try {
+      // Sanitize HTML before sending
       const cleanHTML = DOMPurify.sanitize(content, {
         ALLOWED_TAGS: [
           "h1","h2","h3","h4","h5","h6",
@@ -67,31 +51,34 @@ const { slug } = useParams();
           "href","src","alt","title","style","class",
           "width","height","frameborder","allow","allowfullscreen",
           "colspan","rowspan"
-        ],
+        ]
       });
 
-      const payload = {        
-        itinerary_days_highlights: "Welcome drinks, dinner, beach walk",
-        itinerary_days_title: editdata.title,
+      const payload = {
+        itinerary_id: slug,   // param id bhejna
+        itinerary_days_title: title,
         itinerary_days_description: cleanHTML,
+        itinerary_days_highlights: "Welcome drinks, dinner",
+        itinerary_days_createby: Editorname
       };
 
-      const response = await axios.put(
-        API_URLS.itinerary.Edititinerarydays(slug,days.itinerary_days_id), // <-- tumhare config me update wala API hona chahiye
+      const response = await axios.post(
+        API_URLS.itinerary.Additinerarydays,
         payload,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+            "Content-Type": "application/json"
+          }
         }
       );
 
-      if (response.status === 200) {
-        console.log("Day updated successfully ✅", response.data);
+      if (response.status === 200 || response.status === 201) {
+        console.log("Day added successfully ✅", response.data);
       }
+
     } catch (error) {
-      console.error("Error updating day ❌", error);
+      console.error("Error while creating day ❌", error);
     }
   };
 
@@ -99,22 +86,22 @@ const { slug } = useParams();
     <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-11">
       <div className="px-2 pr-14">
         <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-          Edit Day Schedule
+          Add New Days Schedule
         </h4>
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-          Update the title and description of this day
+          Please add meta description as well
         </p>
       </div>
 
       <form className="flex flex-col" onSubmit={handleSubmit}>
         <div className="px-2 overflow-y-auto custom-scrollbar">
           <div className="mb-4">
-            <Label>Heading of Day-{days.itinerary_days_id}</Label>
+            <Label>Heading of the Day</Label>
             <Input
               type="text"
               placeholder="We will explore monastery today"
-              value={editdata.title}
-              onChange={handleTitleChange}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
             />
           </div>
 
@@ -126,10 +113,6 @@ const { slug } = useParams();
             modules={modules}
             className=""
           />
-
-          <p className="text-xs mt-2">
-            Created - {days.itinerary_days_creationtime}
-          </p>
         </div>
 
         <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
@@ -142,4 +125,4 @@ const { slug } = useParams();
   );
 };
 
-export default Daysmodal;
+export default Adddaysmodal;

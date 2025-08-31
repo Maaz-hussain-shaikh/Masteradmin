@@ -24,22 +24,22 @@ const modules = {
 };
 
 interface Props {
-  days: {
-    itinerary_days_title: string;
-    itinerary_days_description: string;
-    itinerary_days_id: number;
+  data: {
+    itinerary_bookings_terms_title: string;
+    itinerary_bookings_terms_desc: string;
+    itinerary_bookings_terms_id: number;
     itinerary_id: number;
-    itinerary_days_creationtime: string;
+    itinerary_bookings_terms_creation: string;
   };
 }
 
-const Daysmodal: React.FC<Props> = ({ days }) => {
+const Editpolicies: React.FC<Props> = ({ data }) => {
   const token = localStorage.getItem("token");
 const { slug } = useParams();
-  const [content, setContent] = useState(days.itinerary_days_description);
+  const [content, setContent] = useState(data.itinerary_bookings_terms_desc);
   const [editdata, setEdit] = useState({
-    title: days.itinerary_days_title,
-    description: days.itinerary_days_description,
+    title: data.itinerary_bookings_terms_title,
+    description: data.itinerary_bookings_terms_desc,
   });
 
   const editorRef = useRef<any>(null);
@@ -71,13 +71,12 @@ const { slug } = useParams();
       });
 
       const payload = {        
-        itinerary_days_highlights: "Welcome drinks, dinner, beach walk",
-        itinerary_days_title: editdata.title,
-        itinerary_days_description: cleanHTML,
+        itinerary_bookings_terms_title: editdata.title,
+        itinerary_bookings_terms_desc: cleanHTML,
       };
 
       const response = await axios.put(
-        API_URLS.itinerary.Edititinerarydays(slug,days.itinerary_days_id), // <-- tumhare config me update wala API hona chahiye
+        API_URLS.itinerary.Editpolicies(slug,data.itinerary_bookings_terms_id), // <-- tumhare config me update wala API hona chahiye
         payload,
         {
           headers: {
@@ -88,10 +87,10 @@ const { slug } = useParams();
       );
 
       if (response.status === 200) {
-        console.log("Day updated successfully ✅", response.data);
+        console.log("Policies updated successfully ✅", response.data);
       }
     } catch (error) {
-      console.error("Error updating day ❌", error);
+      console.error("Error updating Policies ❌", error);
     }
   };
 
@@ -99,20 +98,20 @@ const { slug } = useParams();
     <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-11">
       <div className="px-2 pr-14">
         <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-          Edit Day Schedule
+          Edit Policies
         </h4>
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-          Update the title and description of this day
+          Update the Booking or cancelation Policies
         </p>
       </div>
 
       <form className="flex flex-col" onSubmit={handleSubmit}>
         <div className="px-2 overflow-y-auto custom-scrollbar">
           <div className="mb-4">
-            <Label>Heading of Day-{days.itinerary_days_id}</Label>
+            <Label>Policie name</Label>
             <Input
               type="text"
-              placeholder="We will explore monastery today"
+              placeholder="Booking Policy"
               value={editdata.title}
               onChange={handleTitleChange}
             />
@@ -128,7 +127,7 @@ const { slug } = useParams();
           />
 
           <p className="text-xs mt-2">
-            Created - {days.itinerary_days_creationtime}
+            Created - {data.itinerary_bookings_terms_creation}
           </p>
         </div>
 
@@ -142,4 +141,4 @@ const { slug } = useParams();
   );
 };
 
-export default Daysmodal;
+export default Editpolicies;

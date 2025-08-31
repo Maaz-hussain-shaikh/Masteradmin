@@ -3,8 +3,12 @@ import { Modal } from "../../ui/modal"
 import Intromodal from "./itinerary modal/Intromodal"
 import { useModal } from "../../../hooks/useModal";
 
-export default function Itineraryintro() {
-  const [isOpentext, setOpne] = useState(false)
+interface Props {
+  itinerarydata: Record<string, any>;
+}
+
+const Itineraryintro: React.FC<Props> = ({  itinerarydata }) => {
+  const [isOpentext, setOpen] = useState(false)
   const { isOpen, openModal, closeModal } = useModal();
   return (
     <>
@@ -13,7 +17,7 @@ export default function Itineraryintro() {
           <div className="flex flex-col gap-4 lg:gap-5 rounded-lg bg-white p-6 ">
             {/* Heading */}
             <div className="flex justify-between">
-              <h1 className="text-3xl text-orange-600 font-bold lg:text-4xl lg:font-bold">This is itinerary Title</h1>
+              <h1 className="text-3xl text-orange-600 font-bold lg:text-4xl lg:font-bold">{itinerarydata.itinerary_title}</h1>
               <button
                 className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-xs font-medium text-orange-600 shadow-theme-xs hover:bg-gray-300 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-orange-600 dark:hover:bg-gray/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto" onClick={openModal}
               >
@@ -40,17 +44,19 @@ export default function Itineraryintro() {
 
             {/* Content */}
             <div className="flex flex-col gap-4 text-gray-700 text-sm lg:text-base ">
-              <p className={`${isOpentext ? "" : "line-clamp-6"}`} >
+              <p className={`${isOpentext ? "" : "line-clamp-6"}`} >{itinerarydata.itineraryDescription}   
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente natus accusamus debitis expedita. Nobis quis qui facilis corrupti, commodi laborum doloribus animi enim?
                 Lorem ipsum dolor, sit amet consectetur adipisicing elit. Facere, amet repellat omnis perspiciatis nemo eveniet nulla magni maxime eligendi ipsam aliquam rerum excepturi vel.              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere in hic quo beatae quas aliquam, maiores quisquam fugiat harum eum sit dolor quasi et necessitatibus, quam vel? Aliquam, mollitia Lorem ipsum, dolor sit amet consectetur adipisicing elit. Voluptatibus autem quas a nostrum sunt omnis rem totam natus? Nihil reiciendis dolor, optio fugiat voluptate autem ipsa vero et soluta atque?Lorem ipsum dolor sit amet consectetur adipisicing elit. Non quibusdam totam dolor, distinctio repudiandae vel neque repellendus, quos iusto asperiores voluptatibus nihil. Exercitationem neque eos, cumque eligendi quas a ab?
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur odit alias libero voluptates ab. Nobis fugiat quia optio voluptates, praesentium a voluptatem, quis sapiente vitae, perspiciatis sequi doloribus quaerat modi.
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa temporibus odit eaque delectus ducimus quae ipsum iste tenetur minima molestias, modi accusantium dolores placeat maiores adipisci pariatur quaerat ex nesciunt Lorem ipsum, dolor sit amet consectetur adipisicing elit. A et excepturi, nobis itaque voluptatibus optio. Laborum voluptate et, laudantium autem repellat tenetur velit ipsa illum magnam dolore! Maiores, sed at.
               </p>
 
+              <h3>Itinerary Note :- {itinerarydata.itinerarynote}</h3>
+ 
 
             </div>
-            <div className="text-center lg:text-right lg:pr-4 ">
-              <button className="text-sm font-medium text-orange-600 hover:underline lg:text-base" onClick={() => { setOpne(!isOpen) }}>View {isOpen ? <>Less</> : <>More</>}</button>
+            <div className="text-center lg:text-right lg:pr-4 " >
+              <button className="text-sm font-medium text-orange-600 hover:underline lg:text-base" onClick={() => { setOpen(!isOpentext) }} >{isOpentext?<>Less</>:<>Veiw More</>}</button>
             </div>
           </div>
         </div>
@@ -62,3 +68,5 @@ export default function Itineraryintro() {
     </>
   )
 }
+
+export default Itineraryintro;
