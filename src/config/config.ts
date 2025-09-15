@@ -50,6 +50,11 @@ export const API_URLS = {
     Edititnerary: (id: any) => `${BASE_URL}/TravelTech/itinerary/update/${id}`,
     savebatch: `${BASE_URL}/TravelTech/tripbatches/add`,
     Deletebatch: (id: any) => `${BASE_URL}/TravelTech/tripbatches/delete/${id}`,
+    Deletecard: (id: any, num: number) => `${BASE_URL}/TravelTech/itinerary/deleteItineraryCard/${id}/${num}`,
+    Editcard: (id: any, num: number) => `${BASE_URL}/TravelTech/itinerary/updateItineraryCard/${id}/${num}`,
+    Addcard: `${BASE_URL}/TravelTech/itinerary/addItineraryCard`,
+    Editcardstatus: (id: any, num: number) => `${BASE_URL}/TravelTech/itinerary/updateItineraryCard/${id}/${num}`,
+    Editseats: (id: any) => `${BASE_URL}/TravelTech/tripbatches/update-details/${id}`,
   },
   franchise: {
     list: `${BASE_URL}/franchise`,

@@ -11,6 +11,8 @@ import axios from "axios";
 import { API_URLS } from "../../../config/config";
 import { useParams } from "react-router";
 import Itinerarycardinfo from "./Itinerarycardinfo";
+import AddCard from "./itinerary modal/AddCard";
+import EditBatchmodal from "./itinerary modal/EditBatchmodal";
 
 
 
@@ -28,6 +30,7 @@ type Batchtype = {
 
 const Pricebar: React.FC<Props> = ({ otherLocations, itinerarydata, cards }) => {
   const { slug } = useParams()
+  const [itdata,setitdata]=useState<any | null>(null);
   const token = localStorage.getItem("token")
   const username = localStorage.getItem("username")
   const [form, setform] = useState("Add")
@@ -39,6 +42,7 @@ const Pricebar: React.FC<Props> = ({ otherLocations, itinerarydata, cards }) => 
   const [Batch, setBatchdata] = useState<Batchtype[]>([])
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editbatchid,seteditbatchid]=useState(0)
 
   useEffect(() => {
     const fetchbatch = async () => {
@@ -132,7 +136,13 @@ const Pricebar: React.FC<Props> = ({ otherLocations, itinerarydata, cards }) => 
 {cards.length > 0 ? (
         <Itinerarycardinfo {...cards[0]} />
       ) : (
-        <div>No itinerary available</div>
+        <div className="m-auto">
+         <button
+              className="flex w-full items-center mb-2 justify-center gap-2 rounded-full border border-gray-300 bg-white text-orange-600 p-2" onClick={() => { setitdata(itinerarydata); openModal(); setform("AddCard")}}
+            >
+              <PlusIcon />
+              Add Card</button>
+          </div>
       )}
       </div>
       
@@ -374,8 +384,8 @@ const Pricebar: React.FC<Props> = ({ otherLocations, itinerarydata, cards }) => 
                             </div>
 
                             {/* Right side */}
-                            <div className="text-sm text-orange-600 gap-3 flex items-center">
-                              <div className="flex items-center gap-2 text-sm"><PencilIcon /><p className="text-xs">
+                            <div className="text-sm text-orange-600 gap-3 flex items-center cursor-pointer" onClick={()=>{setform("Editbatch"); seteditbatchid(date.trip_batches_id); openModal();}}>
+                              <div className="flex items-center gap-2 text-sm"><PencilIcon /><p className="text-xs" >
                                 Edit Slot{date.trip_batches_id}
                               </p></div>
 
@@ -512,10 +522,6 @@ const Pricebar: React.FC<Props> = ({ otherLocations, itinerarydata, cards }) => 
                 {/* Pricing Item */}
               </div>
 
-
-
-
-
             </div>
 
           </div>
@@ -525,8 +531,8 @@ const Pricebar: React.FC<Props> = ({ otherLocations, itinerarydata, cards }) => 
 
     </div>
     <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
-      {form == "Add" ? <Addlocation /> :
-        <Editlocationmodal data={edit} />
+      {form == "Add" ? <Addlocation /> :form == "EditLocation" ? 
+        <Editlocationmodal data={edit} />: form=="AddCard"?<AddCard data={itdata}/>:form=="Editbatch"?<EditBatchmodal batchid={editbatchid} quadprice={itinerarydata.quadPrice} doubleprice={itinerarydata.doublesharingPrice} tripleprice={itinerarydata.tripalsharingPrice}/>:<></>
       }
 
     </Modal>

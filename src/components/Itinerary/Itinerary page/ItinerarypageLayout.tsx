@@ -107,6 +107,7 @@ const [error, setError] = useState<string | null>(null);
             otherLocations={tripData.otherLocations} 
             itinerarydata={tripData.itinerary.data}
             cards={tripData.cards.data}
+            
           />
         </div>
       </div>
