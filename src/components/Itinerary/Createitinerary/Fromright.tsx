@@ -9,11 +9,15 @@ import axios from "axios";
 import { API_URLS } from "../../../config/config";
 
 const options = [
-  { value: "Personal trip", label: "Personal tripg" },
-  { value: "Group trip", label: "Group trip" },
-  { value: "Honeymoon Trip", label: "Honeymoon Trip" },
-  { value: "One Day Treks", label: "One Day Treks" },
-  { value: "International Trip", label: "International Trip" },
+  { value: "Group", label: "Group Trip" },
+  { value: "Honeymoon", label: "Honeymoon Trip" },
+  { value: "Backpacking", label: "Backpacking Trip" },
+  { value: "Customise", label: "Customise Trip" },
+  { value: "School", label: "School Trip" },
+  { value: "College", label: "College Trip" },
+  { value: "Treak", label: "Trek" },
+  { value: "One-Day-Trip", label: "One Day Trip" },
+  { value: "One-Day-Treak", label: "One Day Treak" },
 ];
 
 
@@ -22,6 +26,7 @@ const options = [
 const Formright: React.FC = () => {
   const [country, setcountry] = useState([]);
   const token = localStorage.getItem("token")
+  const name = localStorage.getItem("username")
   const [state, setstate] = useState([]);
   const [city, setcity] = useState([]);
   const { formData, updateForm } = useItineraryForm()
@@ -81,9 +86,7 @@ const Formright: React.FC = () => {
         alert(err.message || "Something went wrong");
       }
     };
-
     fetchstate();
-
   }, [formData.country]);
 
   useEffect(() => {
@@ -116,11 +119,46 @@ const Formright: React.FC = () => {
 
   }, [formData.state]);
 
+
+
+
+  const onSubmit = async () => {
+    try {
+      const responce = await axios.post(API_URLS.itinerary.create,
+        {
+          "itinerary_title": formData.itineraryTitle,
+          "nameoftrip": formData.nameOfTrip,
+          "tripDuration": formData.tripDuration,
+          "isSpecialevent": formData.isSpecialEvent,
+          "eventoffer": formData.eventOffer,
+          "quadPrice": formData.quadPrice,
+          "tripalsharingPrice": formData.triplePrice,
+          "doublesharingPrice": formData.doublePrice,
+          "itineraryType": formData.itineraryType,
+          "country": formData.country.countryCode,
+          "state": formData.state.stateID,
+          "city": formData.city.cityID,
+          "itineraryDescription": formData.itineraryDescription,
+          "itinerarynote": formData.itineraryNote,
+          "itinerarycreatedby": name
+        }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
+      })
+      if (responce.status == 201) {
+        alert("itinerary created sucsess")
+      }
+    } catch (error) {
+      alert(error)
+    }
+  }
+
   return (
     <ComponentCard title="Upload Banner and note">
 
       <div>
-
         <div className="flex gap-3">
           <div>
             <Label>Main Price </Label>
@@ -147,7 +185,7 @@ const Formright: React.FC = () => {
           <div>
             <Label>Type of Trip</Label>
             <Select
-              options={country}
+              options={options}
               placeholder="Type of Trip"
               valueKey="value"
               labelKey="label"
@@ -160,7 +198,7 @@ const Formright: React.FC = () => {
         </div>
 
       </div>
-      {formData.itineraryType == "Honeymoon Trip" ? <></> : <>
+      {formData.itineraryType == "Honeymoon" ? <></> : <>
         <div>
           <div className="flex gap-3">
             <div>
@@ -219,8 +257,8 @@ const Formright: React.FC = () => {
           <Radio
             id="radio1"
             name="group1"
-            value="Special event"
-            checked={formData.isSpecialEvent === "Special event"}
+            value={true}
+            checked={formData.isSpecialEvent == true}
             onChange={handleRadioChange}
             label="Special event"
           />
@@ -228,15 +266,15 @@ const Formright: React.FC = () => {
             id="radio2"
             name="group1"
             label="Normal trip"
-            value="Normal trip"
-            checked={formData.isSpecialEvent === "Normal trip"}
+            value={false}
+            checked={formData.isSpecialEvent == false}
             onChange={handleRadioChange}
           />
 
         </div>
       </div>
       {
-        formData.isSpecialEvent == "Special event" ? <>
+        formData.isSpecialEvent ? <>
           <div>
             <Label>Special event Name & Offer</Label>
             <div className="flex gap-3">
@@ -277,7 +315,7 @@ const Formright: React.FC = () => {
               }}
             />
             <span className="absolute left-0 top-1/2 -translate-y-1/2 border-r border-gray-200 px-3.5 py-3 text-gray-500 dark:border-gray-800 dark:text-gray-400">
-              {formData.country.countryCode?<>{formData.country.countryCode}</>:<>IND</>}
+              {formData.country.countryCode ? <>{formData.country.countryCode}</> : <>IND</>}
 
             </span>
 
@@ -290,7 +328,7 @@ const Formright: React.FC = () => {
             className="dark:bg-dark-900"
             valueKey="stateID"
             labelKey="stateName"
-            value={formData.state?.stateName?? ""}
+            value={formData.state?.stateID ?? ""}
             onChange={(val) => {
               const selectedObj = state.find((s: any) => s.stateID == val);
               updateForm("state", selectedObj);
@@ -305,15 +343,15 @@ const Formright: React.FC = () => {
         className="dark:bg-dark-900"
         valueKey="cityID"
         labelKey="cityName"
-        value={formData.city?.cityName}
+        value={formData.city?.cityID}
         onChange={(val) => {
-              const selectedObj = city.find((s: any) => s.cityID == val);
-              updateForm("city", selectedObj);
-            }}
+          const selectedObj = city.find((s: any) => s.cityID == val);
+          updateForm("city", selectedObj);
+        }}
       />
 
       <div className="flex justify-end">
-        <button className="bg-orange-600 text-white ring-1 ring-inset ring-gray-300  dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300 inline-flex items-center justify-center gap-2 rounded-lg transition w-50 h-10" onClick={() => { console.log(formData) }} >
+        <button className="bg-orange-600 text-white ring-1 ring-inset ring-gray-300  dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300 inline-flex items-center justify-center gap-2 rounded-lg transition w-50 h-10" onClick={() => { onSubmit() }} >
           Create Card
         </button>
       </div>

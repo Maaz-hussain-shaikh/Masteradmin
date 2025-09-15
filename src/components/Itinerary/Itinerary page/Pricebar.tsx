@@ -1,24 +1,141 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useModal } from "../../../hooks/useModal";
 import { Modal } from "../../ui/modal";
 import Addlocation from "./itinerary modal/Addlocation";
-import { PencilIcon, PlusIcon } from "../../../icons";
+import { CalenderIcon, PencilIcon, PlusIcon, TrashBinIcon } from "../../../icons";
 import Editlocationmodal from "./itinerary modal/Editlocationmodal";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css";
+import "./daypiker.css"
+import axios from "axios";
+import { API_URLS } from "../../../config/config";
+import { useParams } from "react-router";
+import Itinerarycardinfo from "./Itinerarycardinfo";
+
 
 
 interface Props {
   otherLocations: any[];
   itinerarydata: Record<string, any>;
+  cards: Record<string, any>;
 }
+type Batchtype = {
+  trip_date: string;
+  trip_batches_id: number;// ya Date agar date object hai
+  // aur bhi properties ho to unhe add karo
+};
 
-const Pricebar: React.FC<Props> = ({ otherLocations, itinerarydata }) => {
+
+const Pricebar: React.FC<Props> = ({ otherLocations, itinerarydata, cards }) => {
+  const { slug } = useParams()
+  const token = localStorage.getItem("token")
+  const username = localStorage.getItem("username")
   const [form, setform] = useState("Add")
   const [edit, setedit] = useState<any | null>(null);
   const { isOpen, openModal, closeModal } = useModal();
   const [date] = itinerarydata.itinerarycreationDate.split('T')
-  console.log(otherLocations)
+  const [selected, setSelected] = useState<Date[]>([]);
+  const [isBatch, setBatch] = useState(false)
+  const [Batch, setBatchdata] = useState<Batchtype[]>([])
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchbatch = async () => {
+
+      try {
+        const responce = await axios.get(API_URLS.itinerary.fetchBatchs(slug), {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        })
+        if (responce.status == 200) {
+          setBatchdata(responce.data.data)
+          setLoading(false)
+        }
+      } catch (error: any) {
+        setError(error.message || "Something went wrong")
+      }
+
+
+    }
+    fetchbatch()
+  }, [loading]);
+
+  const handlesaveBatch = async () => {
+    if (!selected || selected.length === 0) {
+      console.error("No dates selected!");
+      return; // stop execution, API call nahi hogi
+    }
+
+    const trip_dates = selected.map(date => {
+      const d = new Date(date);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); // timezone adjust
+      return d.toISOString().split("T")[0];
+    });
+
+    try {
+      const payload = {
+        itinerary_id: slug,   // param id bhejna
+        trip_dates: trip_dates,
+        trip_time: "10:00 am",
+        trip_createdby: username
+      };
+
+      const response = await axios.post(API_URLS.itinerary.savebatch, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response.status === 201) {
+        setBatch(!isBatch)
+        setLoading(true)
+        console.log(response.data);
+      }
+
+    } catch (error) {
+      console.error("Error while saving batch:", error);
+    }
+  };
+
+
+  const handleDelete = async (id: any) => {
+    try {
+      const response = await axios.delete(
+        API_URLS.itinerary.Deletebatch(id),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200 || response.status === 204) {
+        console.log("Batch deleted successfully ✅");
+        setLoading(true)
+        // yaha tu state update kar de (days list se delete karna)
+      } else {
+        console.warn("Unexpected response:", response);
+      }
+    } catch (error: any) {
+      console.error("Error deleting day ❌", error?.response?.data || error.message);
+    }
+  };
+
+
   return (<>
     <div id="price" className="flex-col hidden w-full ml-4 sm:flex-grow sm:flex sm:mt-2">
+      <div className="">
+{cards.length > 0 ? (
+        <Itinerarycardinfo {...cards[0]} />
+      ) : (
+        <div>No itinerary available</div>
+      )}
+      </div>
+      
       <div className="sticky top-[5rem] 
       basis-1/3 overflow 2xl:top-[6.5rem]">
         <div className="flex flex-col gap-3">
@@ -55,123 +172,6 @@ const Pricebar: React.FC<Props> = ({ otherLocations, itinerarydata }) => {
               </a>
             </div>
           </div>
-
-
-          <div className="flex flex-col gap-[0.625rem] rounded-[0.625rem] bg-white lg:px-6 lg:py-4">
-
-            <h2 className="text-sm font-medium">Detail of Trip</h2>
-
-
-            <hr />
-            <div className="flex justify-between">
-              <div className="scrollbar-styled flex  flex-col gap-[0.625rem]">
-
-                <div className="flex grow items-center justify-center" >
-                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
-                    {/* Vehicle Type */}
-                    <p className="text-xs lg:text-md">Name</p>
-                    <p>-</p>
-
-                    {/* Price */}
-                    <p className="grow">{itinerarydata.nameoftrip}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
-                  </div>
-                </div>
-
-                <div className="flex grow items-center justify-center" >
-                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
-                    {/* Vehicle Type */}
-                    <p className="text-xs lg:text-md">Title</p>
-                    <p>-</p>
-
-                    {/* Price */}
-                    <p className="grow">{itinerarydata.itinerary_title}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
-                  </div>
-                </div>
-                <div className="flex grow items-center justify-center" >
-                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
-                    {/* Vehicle Type */}
-                    <p className="text-xs lg:text-md">Trip Duration</p>
-                    <p>-</p>
-
-                    {/* Price */}
-                    <p className="grow">{itinerarydata.tripDuration-1}N/{itinerarydata.tripDuration}D</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
-                  </div>
-                </div>
-
-                <div className="flex grow items-center justify-center" >
-                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
-                    {/* Vehicle Type */}
-                    <p className="text-xs lg:text-md">City</p>
-                    <p>-</p>
-
-                    {/* Price */}
-                    <p className="grow">{itinerarydata.city}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
-                  </div>
-                </div>
-                <div className="flex grow items-center justify-center" >
-                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
-                    {/* Vehicle Type */}
-                    <p className="text-xs lg:text-md">State</p>
-                    <p>-</p>
-
-                    {/* Price */}
-                    <p className="grow">{itinerarydata.state}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
-                  </div>
-                </div>
-
-                <div className="flex grow items-center justify-center" >
-                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
-                    {/* Vehicle Type */}
-                    <p className="text-xs lg:text-md">Country</p>
-                    <p>-</p>
-
-                    {/* Price */}
-                    <p className="grow">{itinerarydata.country}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
-                  </div>
-                </div>
-                <div className="flex grow items-center justify-center" >
-                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
-                    {/* Vehicle Type */}
-                    <p className="text-xs lg:text-md">Type</p>
-                    <p>-</p>
-
-                    {/* Price */}
-                    <p className="grow">{itinerarydata.itineraryType}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
-                  </div>
-                </div>
-
-                <div className="flex grow items-center justify-center" >
-                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
-                    {/* Vehicle Type */}
-                    <p className="text-xs lg:text-md">Created by</p>
-                    <p>-</p>
-
-                    {/* Price */}
-                    <p className="grow">{itinerarydata.itinerarycreatedby}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
-                  </div>
-                </div>
-                <div className="flex grow items-center justify-center" >
-                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
-                    {/* Vehicle Type */}
-                    <p className="text-xs lg:text-md">Created date</p>
-                    <p>-</p>
-
-                    {/* Price */}
-                    <p className="grow">{date}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
-                  </div>
-                </div>
-
-                {/* Pricing Item */}
-              </div>
-
-
-
-
-
-            </div>
-
-          </div>
-
 
           {/* Pricing Details */}
           <div className="flex flex-col gap-[0.625rem] rounded-[0.625rem] bg-white lg:px-6 lg:py-4">
@@ -307,9 +307,222 @@ const Pricebar: React.FC<Props> = ({ otherLocations, itinerarydata }) => {
               Add Location</button>
           </div>
           {/* Action Buttons */}
+          <div className="flex flex-col gap-[0.625rem] rounded-[0.625rem] bg-white lg:px-6 lg:py-4">
 
+
+            <h2 className="text-sm font-medium mx-auto">Select Batch </h2>
+
+            {/* Selected Dates */}
+
+            {isBatch ? <>
+              <div className="mt-4 text-xs text-gray-600 space-y-1">
+                <div className="bg-white p-4 rounded-lg shadow-lg">
+                  <DayPicker
+                    mode="multiple"
+                    selected={selected}
+                    onSelect={(dates) => setSelected(dates || [])}
+                    required={false}
+
+                    styles={{
+                      caption: { color: "#EA580C !importent", fontWeight: "bold" }, // center align
+                    }}
+                  />
+                </div>
+
+                <div className="mt-4 max-h-48 overflow-y-auto ">
+                  <strong>Selected Dates:</strong>
+                  <ul>
+                    {selected?.map((date, i) => (
+                      <div className="bg-gray-100 rounded-lg mt-2 p-2 text-center" key={i}>
+                        <p>{date.toDateString()}</p>
+                      </div>
+
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <button className="p-2 bg-orange-600 text-sm text-white rounded-lg" onClick={handlesaveBatch}>
+                    Save Date
+                  </button>
+                  <button className="p-2 bg-gray-200 text-sm text-gray-600 rounded-lg" onClick={() => { setBatch(!isBatch) }}>
+                    Close
+                  </button>
+                </div>
+              </div>
+            </> : <>
+              <div className="max-h-48 overflow-y-auto">
+                {/* Loader ya Error handling */}
+                {loading ? (
+                  <><div className="text-center m-4">Loading...</div>.</>
+                ) : error ? (
+                  <>{error}</>
+                ) : (
+                  <ul>
+                    {Batch && Batch.length > 0 ? (
+                      Batch.map((date: { trip_date: string, trip_batches_id: number }, i: number) => (
+                        <div
+                          className="bg-gray-100 rounded-lg mt-2 p-2 text-center text-xs"
+                          key={i}
+                        >
+                          <div className="flex justify-between items-center">
+                            {/* Left side */}
+                            <div className="flex items-center gap-2 text-sm">
+                              <span className="text-orange-600 flex items-center">
+                                <CalenderIcon className="w-4 h-4" />
+                              </span>
+                              <p>{date.trip_date}</p>
+                            </div>
+
+                            {/* Right side */}
+                            <div className="text-sm text-orange-600 gap-3 flex items-center">
+                              <div className="flex items-center gap-2 text-sm"><PencilIcon /><p className="text-xs">
+                                Edit Slot{date.trip_batches_id}
+                              </p></div>
+
+                              <TrashBinIcon className="w-4 h-4 cursor-pointer" onClick={() => { handleDelete(date.trip_batches_id) }} />
+                            </div>
+                          </div>
+
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 text-center text-sm">No Batchs available</p>
+                    )}
+                  </ul>
+                )}
+              </div>
+              <button
+                className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-orange-600 shadow-theme-xs hover:bg-gray-300 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-orange-600 dark:hover:bg-gray/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto" onClick={() => {
+                  setBatch(!isBatch);
+                }}
+              >
+                <PlusIcon />
+                Add Batchs</button>
+
+            </>
+
+            }
+          </div>
+
+
+          <div className="flex flex-col gap-[0.625rem] rounded-[0.625rem] bg-white lg:px-6 lg:py-4">
+
+            <h2 className="text-sm font-medium">Detail of Trip</h2>
+
+
+            <hr />
+            <div className="flex justify-between">
+              <div className="scrollbar-styled flex  flex-col gap-[0.625rem]">
+
+                <div className="flex grow items-center justify-center" >
+                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
+                    {/* Vehicle Type */}
+                    <p className="text-xs lg:text-md">Name</p>
+                    <p>-</p>
+
+                    {/* Price */}
+                    <p className="grow">{itinerarydata.nameoftrip}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
+                  </div>
+                </div>
+
+                <div className="flex grow items-center justify-center" >
+                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
+                    {/* Vehicle Type */}
+                    <p className="text-xs lg:text-md">Title</p>
+                    <p>-</p>
+
+                    {/* Price */}
+                    <p className="grow">{itinerarydata.itinerary_title}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
+                  </div>
+                </div>
+                <div className="flex grow items-center justify-center" >
+                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
+                    {/* Vehicle Type */}
+                    <p className="text-xs lg:text-md">Trip Duration</p>
+                    <p>-</p>
+
+                    {/* Price */}
+                    <p className="grow">{itinerarydata.tripDuration - 1}N/{itinerarydata.tripDuration}D</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
+                  </div>
+                </div>
+
+                <div className="flex grow items-center justify-center" >
+                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
+                    {/* Vehicle Type */}
+                    <p className="text-xs lg:text-md">City</p>
+                    <p>-</p>
+
+                    {/* Price */}
+                    <p className="grow">{itinerarydata.city}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
+                  </div>
+                </div>
+                <div className="flex grow items-center justify-center" >
+                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
+                    {/* Vehicle Type */}
+                    <p className="text-xs lg:text-md">State</p>
+                    <p>-</p>
+
+                    {/* Price */}
+                    <p className="grow">{itinerarydata.state}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
+                  </div>
+                </div>
+
+                <div className="flex grow items-center justify-center" >
+                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
+                    {/* Vehicle Type */}
+                    <p className="text-xs lg:text-md">Country</p>
+                    <p>-</p>
+
+                    {/* Price */}
+                    <p className="grow">{itinerarydata.country}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
+                  </div>
+                </div>
+                <div className="flex grow items-center justify-center" >
+                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
+                    {/* Vehicle Type */}
+                    <p className="text-xs lg:text-md">Type</p>
+                    <p>-</p>
+
+                    {/* Price */}
+                    <p className="grow">{itinerarydata.itineraryType}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
+                  </div>
+                </div>
+
+                <div className="flex grow items-center justify-center" >
+                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
+                    {/* Vehicle Type */}
+                    <p className="text-xs lg:text-md">Created by</p>
+                    <p>-</p>
+
+                    {/* Price */}
+                    <p className="grow">{itinerarydata.itinerarycreatedby}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
+                  </div>
+                </div>
+                <div className="flex grow items-center justify-center" >
+                  <div className="flex w-full items-center justify-between gap-[0.625rem] px-[0.625rem] text-xs lg:text-md">
+                    {/* Vehicle Type */}
+                    <p className="text-xs lg:text-md">Created date</p>
+                    <p>-</p>
+
+                    {/* Price */}
+                    <p className="grow">{date}</p><div className="text-orange-600 text-sm p-1 cursor-pointer"></div>
+                  </div>
+                </div>
+
+                {/* Pricing Item */}
+              </div>
+
+
+
+
+
+            </div>
+
+          </div>
         </div>
       </div>
+
+
     </div>
     <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
       {form == "Add" ? <Addlocation /> :

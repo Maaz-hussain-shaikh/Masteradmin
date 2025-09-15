@@ -22,6 +22,11 @@ interface Itinerary {
   mass: string;
   data: Record<string, any>;
 }
+interface cards {
+  status: boolean;
+  mass: string;
+  data: Record<string, any>;
+}
 
 interface TripData {
   addOns: Item[];
@@ -33,6 +38,8 @@ interface TripData {
   itinerary: Itinerary;
   otherLocations: Item[];
   thingsToGet: Item[];
+  images:Item[];
+  cards:cards;
 }
 
 const ItinerarypageLayout: React.FC = () => {
@@ -72,7 +79,7 @@ const [error, setError] = useState<string | null>(null);
 
   return (
     <>
-      <Pageheader />
+      <Pageheader data={tripData.images}/>
       <div className="max-w-screen-xl w-full mx-auto sm:px-0">
         <div className="flex relative flex-col sm:flex-row">
           {/* Left Section */}
@@ -99,6 +106,7 @@ const [error, setError] = useState<string | null>(null);
           <Pricebar            
             otherLocations={tripData.otherLocations} 
             itinerarydata={tripData.itinerary.data}
+            cards={tripData.cards.data}
           />
         </div>
       </div>

@@ -6,7 +6,7 @@ interface ItineraryFormData {
   metadis:string;
   nameOfTrip: string;
   tripDuration: string;
-  isSpecialEvent: string;
+  isSpecialEvent: boolean;
   EventName:string;
   eventOffer: string;
    MainPrice:number;
@@ -42,7 +42,7 @@ const defaultFormData: ItineraryFormData = {
   metadis:"",
   nameOfTrip: "",
   tripDuration: "",
-  isSpecialEvent: "Normal trip",
+  isSpecialEvent: false,
   EventName:"",
   eventOffer: "",
   MainPrice:0,

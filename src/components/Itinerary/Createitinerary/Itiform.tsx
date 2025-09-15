@@ -4,13 +4,124 @@ import Input from "../../form/input/InputField";
 import TextArea from "../../form/input/TextArea";
 import { UserCircleIcon } from "../../../icons";
 import { useItineraryForm } from "../ItineraryContext";
+import ReactQuill from "react-quill-new";
+import { useEffect, useRef, useState } from "react";
+import DOMPurify from "dompurify";
 
-
+const modules = {
+  toolbar: {
+    container: [
+      [{ header: [1, 2, 3, false] }],
+      [{ size: ["small", "medium", "large"] }],
+      ["bold", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ align: [] }],
+      [{ color: ["#000000", "#1E3A8A", "#D97706", "#047857"] }],
+      ["clean"],
+    ],
+  },
+};
 
 export default function Itiform() {
   const { formData, updateForm } = useItineraryForm();
-
+  const [content, setContent] = useState('');
+  const [Note, setNote] = useState('');
+const editorRef = useRef<any>(null);
   
+
+useEffect(()=>{
+const html = content;
+    const clean = DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: [
+        // Headings
+        "h1", "h2", "h3", "h4", "h5", "h6",
+
+        // Text formatting
+        "p", "strong", "em", "u", "s", "span", "sub", "sup",
+
+        // Lists
+        "ul", "ol", "li",
+
+        // Block elements
+        "blockquote", "pre", "code", "div",
+
+        // Links & media
+        "a", "img", "video", "iframe",
+
+        // Line breaks & rules
+        "br", "hr",
+
+        // Tables (optional)
+        "table", "thead", "tbody", "tr", "th", "td"
+      ],
+
+      ALLOWED_ATTR: [
+        // Common
+        "href", "src", "alt", "title", "style", "class",
+
+        // Media specific
+        "width", "height", "frameborder", "allow", "allowfullscreen",
+
+        // Table specific
+        "colspan", "rowspan"
+      ],
+    });
+    const payload = {
+      html: clean,
+    };
+    
+    updateForm("itineraryDescription",JSON.stringify(payload.html));
+  
+},[content]) 
+
+useEffect(()=>{
+const html = Note;
+    const clean = DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: [
+        // Headings
+        "h1", "h2", "h3", "h4", "h5", "h6",
+
+        // Text formatting
+        "p", "strong", "em", "u", "s", "span", "sub", "sup",
+
+        // Lists
+        "ul", "ol", "li",
+
+        // Block elements
+        "blockquote", "pre", "code", "div",
+
+        // Links & media
+        "a", "img", "video", "iframe",
+
+        // Line breaks & rules
+        "br", "hr",
+
+        // Tables (optional)
+        "table", "thead", "tbody", "tr", "th", "td"
+      ],
+
+      ALLOWED_ATTR: [
+        // Common
+        "href", "src", "alt", "title", "style", "class",
+
+        // Media specific
+        "width", "height", "frameborder", "allow", "allowfullscreen",
+
+        // Table specific
+        "colspan", "rowspan"
+      ],
+    });
+    const payload = {
+      html: clean,
+    };
+    
+    updateForm("itineraryNote",JSON.stringify(payload.html));
+    
+  
+},[Note])
+
+
+
   return (<>
 
     <ComponentCard title="Itinerary Details">
@@ -43,20 +154,26 @@ export default function Itiform() {
         </div>
         <div>
           <Label>Trip Discription</Label>
-          <TextArea
-            value={formData.itineraryDescription}
-            rows={3}
-            onChange={(val) => updateForm("itineraryDescription", val)}
-          />
+          <ReactQuill
+                      ref={editorRef}
+                      theme="snow"
+                      value={content}
+                      onChange={setContent}
+                      modules={modules}
+                      className=""
+                    />
         </div>
         
        <div>
         <Label>Itinerary Note</Label>
-        <TextArea
-          value={formData.itineraryNote}
-          onChange={(val) => updateForm("itineraryNote", val)}
-          rows={3}
-        />
+        <ReactQuill
+                      ref={editorRef}
+                      theme="snow"
+                      value={Note}
+                      onChange={setNote}
+                      modules={modules}
+                      className=""
+                    />
       </div>  
           
         <div>

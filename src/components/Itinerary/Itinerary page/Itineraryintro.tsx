@@ -9,6 +9,7 @@ interface Props {
 
 const Itineraryintro: React.FC<Props> = ({  itinerarydata }) => {
   const [isOpentext, setOpen] = useState(false)
+  const [itdata,setitdata]=useState<any | null>(null);
   const { isOpen, openModal, closeModal } = useModal();
   return (
     <>
@@ -19,7 +20,7 @@ const Itineraryintro: React.FC<Props> = ({  itinerarydata }) => {
             <div className="flex justify-between">
               <h1 className="text-3xl text-orange-600 font-bold lg:text-4xl lg:font-bold">{itinerarydata.itinerary_title}</h1>
               <button
-                className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-xs font-medium text-orange-600 shadow-theme-xs hover:bg-gray-300 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-orange-600 dark:hover:bg-gray/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto" onClick={openModal}
+                className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-xs font-medium text-orange-600 shadow-theme-xs hover:bg-gray-300 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-orange-600 dark:hover:bg-gray/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto" onClick={()=>{setitdata(itinerarydata); openModal();}}
               >
                  <svg
               className="fill-current"
@@ -63,7 +64,7 @@ const Itineraryintro: React.FC<Props> = ({  itinerarydata }) => {
         {/* View More Button */}
       </section>
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
-      <Intromodal/>
+      <Intromodal data={itdata}/>
       </Modal>
     </>
   )

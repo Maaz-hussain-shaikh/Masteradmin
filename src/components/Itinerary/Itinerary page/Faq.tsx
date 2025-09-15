@@ -8,6 +8,7 @@ import Editpolicies from "./itinerary modal/Editpolicies";
 import { useParams } from "react-router";
 import { API_URLS } from "../../../config/config";
 import axios from "axios";
+import Editfaqmodal from "./itinerary modal/Editfaqmodal";
 
 interface Props {
     faq: any[];
@@ -155,7 +156,7 @@ const Faq: React.FC<Props> = ({ faq, bookingTerms }) => {
                                         </div>
 
                                         {/* Arrow Icon */}
-                                        <div className="cursor-pointer rotate-360 mr-4 text-orange-600"  >
+                                        <div className="cursor-pointer rotate-360 mr-4 text-orange-600"  onClick={() => { setedit(faq[index]); setform("Editfaq"); openModal()}}>
                                             <svg
                                                 className="fill-current"
                                                 width="18"
@@ -191,7 +192,7 @@ const Faq: React.FC<Props> = ({ faq, bookingTerms }) => {
             </section>
             <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
                 {
-                    form=="AddPolicies"?<AddPolicies/>:form=="AddFaq"?<FaqModal />:form=="Editpolicies"?<Editpolicies data={edit}/>:<></>
+                    form=="AddPolicies"?<AddPolicies/>:form=="AddFaq"?<FaqModal />:form=="Editpolicies"?<Editpolicies data={edit}/>:<Editfaqmodal data={edit}/>
                 }
                 
             </Modal>

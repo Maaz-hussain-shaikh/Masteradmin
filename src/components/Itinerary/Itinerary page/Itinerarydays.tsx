@@ -117,8 +117,6 @@ const Itinerarydays: React.FC<Props> = ({ days }) => {
                                                         fill=""
                                                     />
                                                 </svg>
-
-
                                             </div>
                                             <div className="text-xl p-2 text-orange-600 cursor-pointer" onClick={() => { handleDelete(elem.itinerary_days_id) }} >
                                                 <TrashBinIcon />
